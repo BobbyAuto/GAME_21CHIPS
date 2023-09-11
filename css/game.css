@@ -3,7 +3,7 @@ body {
     display: flex; justify-content: center; align-items: center;
 }
 
-.mainBox {
+#mainBox {
     width: 1000px; height: 700px;
     background-color: #a9def9;
     position: absolute;
@@ -12,7 +12,7 @@ body {
     border: 3px solid #d0f4de;
 }
 
-.mainBox div {
+#mainBox div {
     width: 90px; height: 90px;
     margin-left: 9px;
     margin-top: 9px;
