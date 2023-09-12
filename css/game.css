@@ -2,6 +2,18 @@ body {
     background: linear-gradient(to bottom, #ff99c8, #fcf6bd);
     display: flex; justify-content: center; align-items: center;
 }
+#whoesTurn {
+    width: 1200px; height: 30px;
+    position: absolute;
+    top: 10px;
+}
+#remainStraw {
+    width: 300px; height: 40px;
+    position: absolute;
+    top: 40px;
+    text-align: center;
+    font-size: 20px;
+}
 
 #mainBox {
     width: 1000px; height: 700px;
@@ -54,6 +66,16 @@ body {
 }
 #catRecords {
     left: 20px;
+}
+#catRecords div {
+    width:100%; height: 40px;
+    background-color: #d0f4de;
+    margin-top: 10px;
+}
+#catRecords div img{
+    width:34px; height: 34px;
+    margin-left: 8px;
+    margin-top: 3px;
 }
 #aiRecords {
     right:20px;

@@ -1,12 +1,20 @@
+var maximumBoxes = 70; // the maximum number of boxes.
+var toBeRemoved = []; // one round, to remove strawberries
+var remainingStrawberries = 0; // currently, the remaining strawberries.
+var isCatTurn = true; 
+
 var init = function(strawberries) {
-    var maximumBoxes = 70;
+    
     if (strawberries > maximumBoxes) { // the maximum of strawberries can not exceed the maximum number of boxes.
         strawberries = maximumBoxes;
     }
 
-    var remainingStrawberries = strawberries;
-    var toBeRemoved = []; // one round, to remove strawberries
-
+    remainingStrawberries = strawberries; // initial the remaining strawberries.
+    $("#remainStraw").html("Remaining Strawberries: <Strong>" + remainingStrawberries +"</strong>");
+    if (isCatTurn) {
+        $("#whoesTurn").css("text-align", "left");
+    }
+    
     beginIndice = Math.floor((maximumBoxes - strawberries)/2); // calculate the indice to deploy strawberries.
 
     var container = $("#mainBox");
@@ -20,11 +28,19 @@ var init = function(strawberries) {
                 e.append("<img src='imgs/strawberry.png'/>");
                 var selected = false;
                 e.click(function () { // register click event.
+                    if(!isCatTurn) {
+                        alert("It's not your turn, please wait a moment!");
+                        return;
+                    }
                     if(toBeRemoved.length >= 3) { // only allow to choose maximum 3 strawberries.
                         if(toBeRemoved.indexOf(e) == -1) {
                             return;
                         }
                     }
+                    if(e.children().length == 0) {
+                        return;
+                    }
+
                     if(!selected) {
                         e.css("background-color", "#588157");
                         toBeRemoved.push(e);
@@ -38,12 +54,29 @@ var init = function(strawberries) {
                     selected = !selected; //toggle select effect.
                 });
             }
-            
         })(i);
     }
 
     // register the click event of remove button.
     $("#cat").click(function() {
-        alert(toBeRemoved.length);
+        var catRecordStr = "<div>" // construct history records.
+
+        for(var i=0; i<toBeRemoved.length; i++) {
+            e = toBeRemoved[i];
+            e.empty();
+            e.css("background-color", "#e4c1f9");
+
+            catRecordStr += "<img src='imgs/strawberry.png'/>"
+        }
+        catRecordStr += "</div>"
+        $("#catRecords").append(catRecordStr);
+
+        remainingStrawberries -= toBeRemoved.length; // update the remaining strawberries.
+        $("#remainStraw").html("Remaining Strawberries: <Strong>" + remainingStrawberries +"</strong>");
+
+        toBeRemoved.length = 0; // empty the toBeRemoved list, go to next round
+
+        isCatTurn = false; // switch to AI's turn.
+        $("#whoesTurn").css("text-align", "right");
     });
 }
