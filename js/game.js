@@ -19,7 +19,7 @@ var init = function(strawberries) {
             if (i >= beginIndice && i < (beginIndice+strawberries)) { // deploy strawberries.
                 e.append("<img src='imgs/strawberry.png'/>");
                 var selected = false;
-                e.click(function () {
+                e.click(function () { // register click event.
                     if(toBeRemoved.length >= 3) { // only allow to choose maximum 3 strawberries.
                         if(toBeRemoved.indexOf(e) == -1) {
                             return;
@@ -35,10 +35,15 @@ var init = function(strawberries) {
                             return item !== popElement;
                         });
                     }
-                    selected = !selected;
+                    selected = !selected; //toggle select effect.
                 });
             }
             
         })(i);
     }
+
+    // register the click event of remove button.
+    $("#cat").click(function() {
+        alert(toBeRemoved.length);
+    });
 }
