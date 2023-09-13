@@ -1,10 +1,11 @@
 var maximumBoxes = 70; // the maximum number of boxes.
 var toBeRemoved = []; // one round, to remove strawberries
 var remainingStrawberries = 0; // currently, the remaining strawberries.
-var isCatTurn = true; 
+var isCatTurn = true;
 var strawContainer = [];
 
-var init = function(strawberries) {
+var init = function(strawberries, isAITurn) {
+    isCatTurn = !isAITurn;
     
     if (strawberries > maximumBoxes) { // the maximum of strawberries can not exceed the maximum number of boxes.
         strawberries = maximumBoxes;
@@ -61,6 +62,15 @@ var init = function(strawberries) {
 
     // register the click event of remove button.
     $("#cat").click(function() {
+        if(!isCatTurn) {
+            alert("It's not your turn, please wait a moment!");
+            return;
+        }
+        if (toBeRemoved.length == 0) {
+            alert("You have to choose to remove 1, 2, or 3 strawberries!");
+            return;
+        }
+
         var catRecordStr = "<div>" // construct history records.
 
         for(var i=0; i<toBeRemoved.length; i++) {
@@ -92,6 +102,13 @@ var init = function(strawberries) {
         var bestMoves = aiBestMoves();
         aiDeployMoves(bestMoves.moves);
     });
+
+    // if it's AI's turn at the beginning, then deploy AI's strategy and movement.
+    if(!isCatTurn) {
+        $("#whoesTurn").css("text-align", "right");
+        var bestMoves = aiBestMoves();
+        aiDeployMoves(bestMoves.moves);
+    }
 }
 
 /**
