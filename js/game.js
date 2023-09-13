@@ -78,5 +78,95 @@ var init = function(strawberries) {
 
         isCatTurn = false; // switch to AI's turn.
         $("#whoesTurn").css("text-align", "right");
+        aiMoves();
     });
+}
+
+var aiMoves = function() {
+    var possibleResults = [];
+    var results = []
+    
+    for (var move=1; move<=3; move++) {
+        if(remainingStrawberries - move >= 0) {
+            minimax(remainingStrawberries - move, true);
+            var result = possibleResults;
+            results.push({
+                move: move,
+                possibleResults: possibleResults.slice()
+            });
+            possibleResults.length = 0;
+        }
+    }
+    var bestOption = evaluation(results);
+    alert("bestMoves = " + bestOption.bestMoves + ", bestWinRate = " + bestOption.winRate);
+
+    /**
+     * evaluate the move which can maximize the win rate of AI
+     * @param {*} results 
+     * @returns a JSON object, which includes the best move and corresponding win rate.
+     */
+    function evaluation(results) {
+        var bestMoves = 0;
+        var bestWinRate = 0;
+        for(var i=0; i<results.length; i++) {
+            var move = results[i].move;
+            var result = results[i].possibleResults;
+
+            var winCount = 0;
+            for(var j=0; j<result.length; j++) {
+                if(result[j] == 1) {
+                    winCount ++;
+                }
+            }
+            var winRate = winCount/result.length;
+            if (winRate > bestWinRate) {
+                bestWinRate = winRate;
+                bestMoves = move;
+            }
+        }
+        return {bestMoves: bestMoves, winRate: bestWinRate};
+    }
+
+    /**
+     * calculate the tree nodes, AI win if return 1, cat win if return -1.
+     * @param {*} strawberries remaining strawberries.
+     * @param {*} isCatTurn 
+     * @returns 
+     */
+    function minimax(strawberries, isCatTurn) {
+        if (strawberries <= 3) {
+            if (isCatTurn) { // if the remaining strawberries are between 1 and 3 in the cat's turn, then cat win, AI defeat.
+                //possibleResults.push(-1);
+                return -1;
+            } else { // in contrast, if the remaining strawberries are between 1 and 3 in the AI's turn, then AI win, cat defeat.
+                //possibleResults.push(1);
+                return 1;
+            }
+        }
+        if (strawberries <=0 && isCatTurn) { // if the current round is the cat's turn, but no strawberries remains, the AI win.
+            //possibleResults.push(1);
+            return 1;
+        }
+        if(isCatTurn) {
+            var max_eval = -100;
+            for(var move=1; move<=3; move++) {
+                if (strawberries - move >= 0) {
+                    eval = minimax(strawberries - move, false);
+                    max_eval = Math.max(max_eval, eval);
+                }
+            }
+            possibleResults.push(max_eval); 
+            return max_eval;
+        } else {
+            var min_eval = 100;
+            for(var move=1; move<=3; move++) {
+                if (strawberries - move >= 0) {
+                    eval = minimax(strawberries - move, true);
+                    min_eval = Math.min(min_eval, eval);
+                }
+            }
+            possibleResults.push(min_eval);
+            return min_eval;
+        }
+    }
 }
