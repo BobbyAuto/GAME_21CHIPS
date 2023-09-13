@@ -2,6 +2,7 @@ var maximumBoxes = 70; // the maximum number of boxes.
 var toBeRemoved = []; // one round, to remove strawberries
 var remainingStrawberries = 0; // currently, the remaining strawberries.
 var isCatTurn = true; 
+var strawContainer = [];
 
 var init = function(strawberries) {
     
@@ -25,6 +26,7 @@ var init = function(strawberries) {
             var e = $("#box_" + index);
 
             if (i >= beginIndice && i < (beginIndice+strawberries)) { // deploy strawberries.
+                strawContainer.push(e);
                 e.append("<img src='imgs/strawberry.png'/>");
                 var selected = false;
                 e.click(function () { // register click event.
@@ -66,29 +68,101 @@ var init = function(strawberries) {
             e.empty();
             e.css("background-color", "#e4c1f9");
 
+            strawContainer.splice(strawContainer.indexOf(e), 1);
+
             catRecordStr += "<img src='imgs/strawberry.png'/>"
         }
         catRecordStr += "</div>"
         $("#catRecords").append(catRecordStr);
 
-        remainingStrawberries -= toBeRemoved.length; // update the remaining strawberries.
+        remainingStrawberries = strawContainer.length; // update the remaining strawberries.
         $("#remainStraw").html("Remaining Strawberries: <Strong>" + remainingStrawberries +"</strong>");
+
+        if (remainingStrawberries == 0) { // after moving, if the remaining strawberries is 0 then the cat win.
+            $("#gameResult").css("color", "yellow");
+            $("#gameResult").css("display", "block");
+            $("#gameResult").text("Wow, You Win!");
+            return;
+        }
 
         toBeRemoved.length = 0; // empty the toBeRemoved list, go to next round
 
         isCatTurn = false; // switch to AI's turn.
         $("#whoesTurn").css("text-align", "right");
-        aiMoves();
+        var bestMoves = aiBestMoves();
+        aiDeployMoves(bestMoves.moves);
     });
 }
 
-var aiMoves = function() {
+/**
+ * deploy the best movements.
+ * @param {*} bestMove 
+ */
+var aiDeployMoves = function(bestMove) {
+    var aiRecordStr = "<div>" // construct history records.
+
+    var aiToBeRemoved = [];
+
+    var i=0;
+    function loopIteration() { // simulate human's choosing behaviour, give a random time of pause between each choosing.
+        if (i<bestMove) {
+            var ranPause = Math.random() * 2000;
+            setTimeout(function() {
+                var e = strawContainer.shift();
+                e.css("background-color", "#588157");
+                aiToBeRemoved.push(e);
+                
+                i++;
+                loopIteration();
+            }, ranPause);
+        } else { // after choosing, wait for 1 second, then remove the choosen strawberries.
+            setTimeout(function() {
+                goMoves();
+            }, 1000);
+        }
+    }
+    loopIteration();
+
+    function goMoves() {
+
+        for(var j=0; j<aiToBeRemoved.length; j++) {
+            e = aiToBeRemoved[j];
+            e.empty();
+            e.css("background-color", "#e4c1f9");
+    
+            aiRecordStr += "<img src='imgs/strawberry.png'/>";
+        }
+        aiRecordStr += "</div>"
+        $("#aiRecords").append(aiRecordStr);
+    
+        remainingStrawberries = strawContainer.length; // update the remaining strawberries.
+        $("#remainStraw").html("Remaining Strawberries: <Strong>" + remainingStrawberries +"</strong>");
+
+        if (remainingStrawberries == 0) { // after moving, if the remaining strawberries is 0 then AI win.
+            $("#gameResult").css("color", "red");
+            $("#gameResult").css("display", "block");
+            $("#gameResult").text("You Failed!");
+            return;
+        }
+    
+        isCatTurn = true; // switch to the cat's turn.
+        $("#whoesTurn").css("text-align", "left");
+    }
+    
+}
+
+/**
+ * calculate the best movement option.
+ * @returns a JSON object, which includes the best move and corresponding win rate
+ */
+var aiBestMoves = function() {
     var possibleResults = [];
     var results = []
     
     for (var move=1; move<=3; move++) {
         if(remainingStrawberries - move >= 0) {
-            minimax(remainingStrawberries - move, true);
+            eval = minimax(remainingStrawberries - move, true);
+            possibleResults.push(eval); 
             var result = possibleResults;
             results.push({
                 move: move,
@@ -97,8 +171,8 @@ var aiMoves = function() {
             possibleResults.length = 0;
         }
     }
-    var bestOption = evaluation(results);
-    alert("bestMoves = " + bestOption.bestMoves + ", bestWinRate = " + bestOption.winRate);
+    return evaluation(results);
+    //alert("bestMoves = " + bestOption.bestMoves + ", bestWinRate = " + bestOption.winRate);
 
     /**
      * evaluate the move which can maximize the win rate of AI
@@ -107,7 +181,7 @@ var aiMoves = function() {
      */
     function evaluation(results) {
         var bestMoves = 0;
-        var bestWinRate = 0;
+        var bestWinRate = -1;
         for(var i=0; i<results.length; i++) {
             var move = results[i].move;
             var result = results[i].possibleResults;
@@ -115,16 +189,19 @@ var aiMoves = function() {
             var winCount = 0;
             for(var j=0; j<result.length; j++) {
                 if(result[j] == 1) {
-                    winCount ++;
+                    winCount ++; // accumulate the win time.
                 }
             }
-            var winRate = winCount/result.length;
+            var winRate = winCount/result.length; // calculate the win rate.
             if (winRate > bestWinRate) {
                 bestWinRate = winRate;
                 bestMoves = move;
             }
         }
-        return {bestMoves: bestMoves, winRate: bestWinRate};
+        if (bestWinRate == 0) { // if AI has no chance to win, then get a random move among 1 to 3;
+            bestMoves = Math.floor(Math.random() * 3) + 1
+        }
+        return {moves: bestMoves, winRate: bestWinRate};
     }
 
     /**
@@ -134,17 +211,14 @@ var aiMoves = function() {
      * @returns 
      */
     function minimax(strawberries, isCatTurn) {
-        if (strawberries <= 3) {
-            if (isCatTurn) { // if the remaining strawberries are between 1 and 3 in the cat's turn, then cat win, AI defeat.
-                //possibleResults.push(-1);
+        if (strawberries >=1 && strawberries <= 3) {
+            if (isCatTurn) { // if the remaining strawberries are between 1 and 3 in the cat's turn, then cat win, AI fail.
                 return -1;
-            } else { // in contrast, if the remaining strawberries are between 1 and 3 in the AI's turn, then AI win, cat defeat.
-                //possibleResults.push(1);
+            } else { // in contrast, if the remaining strawberries are between 1 and 3 in the AI's turn, then AI win, cat fail.
                 return 1;
             }
         }
-        if (strawberries <=0 && isCatTurn) { // if the current round is the cat's turn, but no strawberries remains, the AI win.
-            //possibleResults.push(1);
+        if (strawberries <=0 && isCatTurn) { // if the current round is the cat's turn, but no strawberries remains, then AI win.
             return 1;
         }
         if(isCatTurn) {

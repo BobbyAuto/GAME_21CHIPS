@@ -80,3 +80,33 @@ body {
 #aiRecords {
     right:20px;
 }
+#aiRecords div {
+    width:100%; height: 40px;
+    background-color: #d0f4de;
+    margin-top: 10px;
+}
+#aiRecords div img{
+    width:34px; height: 34px;
+    margin-left: 8px;
+    margin-top: 3px;
+}
+
+#gameResult {
+    z-index: 100;
+    width:100%; height:100%;
+    font-size: 80px;
+    text-align: center;
+    background-color: black;
+    
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    line-height: 800px;
+}
+.resultWin {
+    display: block;
+    color: yellow;
+}
+.resultFail {
+    display: block;
+    color: red;
+}
