@@ -1,6 +1,13 @@
 # GAME_21CHIPS
 (Cat Human vs AI) A Game and Strategy of Taking Away 21 Strawberries with Minimax and Alpha-Beta Pruning Algorithm.
 
+### Programming Languages Used for This Game
+<ul>
+  <li>HTML</li>
+  <li>CSS</li>
+  <li>Javascript (jQuery Framework)</li>
+</ul>
+
 ### what is this game?</b><br/>
 21 chips take away game, also called "A Take-Away Game", Consider the following game: there are 21 chips on the table. You are challenged by your
 arch-enemy to play the following game: you both have to alternate moves, where in each move, you can take away either 1, 2, or 3 chips from the table. The person who has no more
